@@ -1,9 +1,9 @@
-var db = require('../config');
+var db = require('../database/config');
 
 var Livro = {
   cadastrar: (livro, callback) => {
-    const sql = `INSERT INTO livro (titulo, autor, preco_venda, preco_compra, genero_id, quantidade)
-                 VALUES (?, ?, ?, ?, ?, ?)`;
+    var sql = `INSERT INTO livro (titulo, autor, preco_venda, preco_compra, genero_id, quantidade)
+                 VALUES`;
     db.query(sql, [livro.titulo, livro.autor, livro.preco_venda, livro.preco_compra, livro.genero_id, livro.quantidade], callback);
   },
 

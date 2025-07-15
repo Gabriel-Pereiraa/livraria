@@ -3,27 +3,39 @@ document.addEventListener('DOMContentLoaded', () => {
   const generoSelect = document.getElementById('genero_id');
   const listaLivros = document.getElementById('listaLivros');
 
-  fetch('/api/generos')
-    .then(res => res.json())
-    .then(data => {
-      data.forEach(g => {
-        const opt = document.createElement('option');
-        opt.value = g.id;
-        opt.text = g.nome;
-        generoSelect.appendChild(opt);
+  // Carrega os gêneros no dropdown
+  function carregarGeneros() {
+    fetch('/api/generos')
+      .then(res => res.json())
+      .then(generos => {
+        generoSelect.innerHTML = '';
+        generos.forEach(g => {
+          const opt = document.createElement('option');
+          opt.value = g.id;
+          opt.text = g.nome;
+          generoSelect.appendChild(opt);
+        });
       });
-    });
+  }
 
+  // Validação do nome do autor (apenas letras e espaço)
   function autorValido(autor) {
     const caracteres = autor.split('');
     for (let i = 0; i < caracteres.length; i++) {
-      if (!/[A-Za-zÀ-ú\s]/.test(caracteres[i])) {
+      const codigo = caracteres[i].charCodeAt(0);
+      if (
+        !(codigo === 32 || // espaço
+          (codigo >= 65 && codigo <= 90) || // A-Z
+          (codigo >= 97 && codigo <= 122) || // a-z
+          (codigo >= 192 && codigo <= 255)) // letras acentuadas
+      ) {
         return false;
       }
     }
     return true;
   }
 
+  // Envia o livro para o backend
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
@@ -46,20 +58,21 @@ document.addEventListener('DOMContentLoaded', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(livro)
     })
-    .then(res => res.json())
-    .then(data => {
-      alert(data.mensagem || data.erro);
-      form.reset();
-      carregarLivros();
-    });
+      .then(res => res.json())
+      .then(data => {
+        alert(data.mensagem || data.erro);
+        form.reset();
+        carregarLivros();
+      });
   });
 
+  // Carrega e exibe todos os livros cadastrados
   function carregarLivros() {
     listaLivros.innerHTML = '';
     fetch('/api/livros')
       .then(res => res.json())
-      .then(data => {
-        data.forEach(livro => {
+      .then(livros => {
+        livros.forEach(livro => {
           const li = document.createElement('li');
           li.textContent = `${livro.titulo} - ${livro.autor} - R$ ${livro.preco_venda} - ${livro.genero_nome} - ${livro.quantidade} un.`;
           listaLivros.appendChild(li);
@@ -67,5 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
+  // Inicialização
+  carregarGeneros();
   carregarLivros();
 });

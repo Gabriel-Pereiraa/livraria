@@ -1,4 +1,4 @@
-var Livro = require('../models/livro');
+var Livro = require('../models/livroModel');
 var Genero = require('../models/genero');
 
 function precoVenda(preco, generoNome) {
@@ -17,11 +17,22 @@ function precoVenda(preco, generoNome) {
 exports.cadastrarLivro = (req, res) => {
   var { titulo, autor, preco_compra, quantidade, genero_id } = req.body;
 
-  if (!/^[A-Za-zÀ-ú\s]+$/.test(autor)) {
-    return res.status(400).json({ erro: 'Autor inválido' });
+  var letras = autor.split('');
+  for (let i = 0; i < letras.length; i++) {
+    var codigo = letras[i].charCodeAt(0);
+    if (
+      !(
+        (codigo >= 65 && codigo <= 90) ||
+        (codigo >= 97 && codigo <= 122) ||
+        (codigo >= 192 && codigo <= 255) ||
+        codigo === 32
+      )
+    ) {
+      return res.status(400).json({ erro: 'Autor inválido' });
+    }
   }
 
-  // Buscar nome do gênero
+  // nome do gênero
   var sqlGenero = 'SELECT nome FROM genero WHERE id = ?';
   var db = require('../config');
   db.query(sqlGenero, [genero_id], (err, results) => {

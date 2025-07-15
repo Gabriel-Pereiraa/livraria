@@ -1,4 +1,4 @@
-var db = require('../config');
+var db = require('../database/config');
 
 var Genero = {
   listarTodos: (callback) => {
